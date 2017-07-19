@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, FlatList, TextInput, Text, ActivityIndicator, StyleSheet, Animated } from 'react-native';
 import { connect } from 'react-redux';
 
-import { loadMessages } from './actions';
+import { loadMessages, sendMessage } from './actions';
 import MessageRow from './messageRow';
 
 class ChatWindow extends Component {
@@ -22,6 +22,13 @@ class ChatWindow extends Component {
     _showErrorAnimation() {
         Animated.timing(this._animated, {
             toValue: 1,
+            duration: 500
+        }).start();
+    }
+
+    _removeErrorAnimation() {
+        Animated.timing(this._animated, {
+            toValue: 0,
             duration: 500
         }).start();
     }
@@ -56,6 +63,10 @@ class ChatWindow extends Component {
                     <TextInput
                         ref="textInput"
                         style={[styles.base]}
+                        onChangeText={() => {
+                            // What to do what to do
+                            this._removeErrorAnimation();
+                        }}
                         onSubmitEditing={(event) => {
                             // Clear the input of the text input. 
                             const text = event.nativeEvent.text;
@@ -65,7 +76,8 @@ class ChatWindow extends Component {
                             } else {
                                 //success
                                 this.refs.textInput.clear();  
-                                //todo: send
+                                //todo: send. Dear Minh, please tell me what to write. 
+                                this.props.sendMessage(text);
                             }
                         }}
                     />
@@ -93,7 +105,12 @@ const mapStateToProps = (state) => (
 );
 
 const mapDispatchToProps = (dispatch) => ({
-    loadMessages: () => dispatch(loadMessages())
+    loadMessages: () => dispatch(loadMessages()),
+    sendMessage: (text) => dispatch(sendMessage({
+        text,
+        sender: 'Tuan',
+        timestamp: Date.now()
+    }))
 });
 
 

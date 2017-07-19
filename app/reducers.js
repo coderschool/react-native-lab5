@@ -12,6 +12,17 @@ export const messages = (state=initialMessagesState, action) => {
                 }
             ))
         }
+    } else if (action.type == 'receivedMessage') {
+        // remember action has action.data and action.key
+        const newMsg = {
+            key: action.key,
+            text: action.data.text,
+            sender: action.data.sender,
+            timestamp: action.data.timestamp
+        };
+        return {
+            messageList: state.messageList.concat([newMsg])
+        }
     }
     return state;
 }
