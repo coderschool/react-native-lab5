@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, FlatList, TextInput, Text, ActivityIndicator } from 'react-native';
+import { View, FlatList, TextInput, Text, ActivityIndicator, StyleSheet, Animated } from 'react-native';
 import { connect } from 'react-redux';
 
 import { loadMessages } from './actions';
@@ -7,8 +7,23 @@ import MessageRow from './messageRow';
 
 class ChatWindow extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            textInputError: false
+        };
+        this._animated = new Animated.Value(0);
+    }
+
     componentWillMount() {
         this.props.loadMessages();
+    }
+
+    _showErrorAnimation() {
+        Animated.timing(this._animated, {
+            toValue: 1,
+            duration: 500
+        }).start();
     }
 
     render() {
@@ -19,6 +34,12 @@ class ChatWindow extends Component {
                 </View>
             )            
         }
+
+        let backgroundColor = this._animated.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['rgb(255,255,255)', 'rgb(255,0,0)']
+        });
+
         return (
             <View style={{paddingTop: 50, flex: 1, justifyContent: 'space-between'}}>
                 <FlatList 
@@ -31,17 +52,37 @@ class ChatWindow extends Component {
                     }
                     keyExtractor={(item) => item.key}
                 />
-                <TextInput
-                    style={{padding: 5, height: 40, borderColor: 'gray', borderWidth: 1}}
-                    onSubmitEditing={(event) => {
-                        console.log('I want to send message: ', event.nativeEvent.text);
-                    }}
-                />
+                <Animated.View style={{ backgroundColor: backgroundColor }}>
+                    <TextInput
+                        ref="textInput"
+                        style={[styles.base]}
+                        onSubmitEditing={(event) => {
+                            // Clear the input of the text input. 
+                            const text = event.nativeEvent.text;
+                            if (!text) {
+                                // The text is empty! Let's turn the text input backgroundColor to red. 
+                                this._showErrorAnimation();
+                            } else {
+                                //success
+                                this.refs.textInput.clear();  
+                                //todo: send
+                            }
+                        }}
+                    />
+                </Animated.View>
             </View>
         )
     }    
 }
 
+const styles = StyleSheet.create({
+    base: {
+        padding: 5, 
+        height: 40, 
+        borderColor: 'gray', 
+        borderWidth: 1
+    }
+})
 
 
 const mapStateToProps = (state) => (
