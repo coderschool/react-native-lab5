@@ -3,7 +3,7 @@ import firebase from './firebase';
 const self = module.exports = {
     loadMessages: () => {
         return (dispatch) => {
-            // dispatch isLoading
+            dispatch(self.startLoading());
             firebase.database()
                 .ref('messages')
                 .once('value', (snapshot) => {
@@ -14,6 +14,9 @@ const self = module.exports = {
     messagesLoaded: (data) => ({
         type: 'loaded',
         data
+    }),
+    startLoading: () => ({
+        type: 'startLoading'
     })
 }
 
